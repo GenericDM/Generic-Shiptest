@@ -693,7 +693,7 @@
 	SHOULD_CALL_PARENT(TRUE)
 	return SEND_SIGNAL(src, COMSIG_ATOM_UPDATE_DESC, updates)
 
-/// Updates the icon of the atom
+/// Updates the icon of the atom test test
 /atom/proc/update_icon(updates=ALL)
 	SIGNAL_HANDLER
 	SHOULD_CALL_PARENT(TRUE)
