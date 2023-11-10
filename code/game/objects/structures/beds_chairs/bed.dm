@@ -241,3 +241,24 @@
 	name = "double dirty mattress"
 	desc = "An old grubby king sized mattress. You really try to not think about what could be the cause of those stains."
 	icon_state = "dirty_mattress_double"
+
+/obj/structure/bed/bunk
+	name = "bunk bed"
+	desc = "A bunk bed."
+	icon = 'icons/obj/bunkbeds.dmi'
+	icon_state = "bunkframe"
+	layer = ABOVE_MOB_LAYER
+
+/obj/structure/bed/bunk/Initialize()
+	. = ..()
+	overlays += image(icon = 'icons/obj/bunkbeds.dmi', icon_state = "bunklower", layer = BELOW_MOB_LAYER - 0.1)
+	overlays += image(icon = 'icons/obj/bunkbeds.dmi', icon_state = "bunkupper", layer = BELOW_MOB_LAYER)
+
+/obj/structure/bed/bunk/MouseDrop_T(atom/movable/O, mob/user, list/params)
+	. = ..()
+	var/_x = text2num(params2list(params)["icon-x"])
+	var/_y = text2num(params2list(params)["icon-y"])
+	var/icon/source_icon = icon(icon, icon_state, dir)
+	var/sprite_width = source_icon.Width()
+	var/sprite_height = source_icon.Height()
+	balloon_alert(user, "[_x], [_y], [sprite_width], [sprite_height]")
