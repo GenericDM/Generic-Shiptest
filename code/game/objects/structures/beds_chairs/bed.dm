@@ -251,7 +251,7 @@
 
 /obj/structure/bed/bunk/Initialize()
 	. = ..()
-	overlays += image(icon = 'icons/obj/bunkbeds.dmi', icon_state = "bunklower", layer = BELOW_MOB_LAYER - 0.1)
+	overlays += image(icon = 'icons/obj/bunkbeds.dmi', icon_state = "bunklower", layer = OBJ_LAYER - 0.1)
 	overlays += image(icon = 'icons/obj/bunkbeds.dmi', icon_state = "bunkupper", layer = BELOW_MOB_LAYER)
 
 /obj/structure/bed/bunk/MouseDrop_T(atom/movable/O, mob/user, list/params)
