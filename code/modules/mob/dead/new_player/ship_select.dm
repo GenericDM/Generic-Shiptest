@@ -64,45 +64,8 @@
 				spawnee.new_player_panel()
 
 		if("buy")
-			if(is_banned_from(spawnee.ckey, "Ship Purchasing"))
-				to_chat(spawnee, "<span class='danger'>You are banned from purchasing ships!</span>")
-				spawnee.new_player_panel()
-				ui.close()
-				return
-
 			var/datum/map_template/shuttle/template = SSmapping.ship_purchase_list[params["name"]]
-			if(!SSovermap.player_ship_spawn_allowed())
-				to_chat(spawnee, "<span class='danger'>No more ships may be spawned at this time!</span>")
-				return
-			if(!template.enabled)
-				to_chat(spawnee, "<span class='danger'>This ship is not currently available for purchase!</span>")
-				return
-			if(!template.has_ship_spawn_playtime(spawnee.client))
-				to_chat(spawnee, "<span class='danger'>You do not have enough playtime to spawn this ship!</span>")
-				return
-
-			var/num_ships_with_template = 0
-			for(var/datum/overmap/ship/controlled/Ship as anything in SSovermap.controlled_ships)
-				if(template == Ship.source_template)
-					num_ships_with_template += 1
-			if(num_ships_with_template >= template.limit)
-				to_chat(spawnee, "<span class='danger'>There are already [num_ships_with_template] ships of this type; you cannot spawn more!</span>")
-				return
-
-			ui.close()
-
-			to_chat(spawnee, "<span class='danger'>Your [template.name] is being prepared. Please be patient!</span>")
-			var/datum/overmap/ship/controlled/target = SSovermap.spawn_ship_at_start(template)
-			if(!target?.shuttle_port)
-				to_chat(spawnee, "<span class='danger'>There was an error loading the ship. Please contact admins!</span>")
-				spawnee.new_player_panel()
-				return
-			SSblackbox.record_feedback("tally", "ship_purchased", 1, template.name) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-			// Try to spawn as the first listed job in the job slots (usually captain)
-			// Playtime checks are overridden, to ensure the player gets to join the ship they spawned.
-			if(!spawnee.AttemptLateSpawn(target.job_slots[1], target, FALSE))
-				to_chat(spawnee, "<span class='danger'>Ship spawned, but you were unable to be spawned. You can likely try to spawn in the ship through joining normally, but if not, please contact an admin.</span>")
-				spawnee.new_player_panel()
+			buy_ship(template, spawnee, ui)
 
 /datum/ship_select/ui_static_data(mob/user)
 	// tracks the number of existing ships of each template type so that their unavailability for purchase can be communicated to the user
@@ -166,3 +129,40 @@
 			"minTime" = T.get_req_spawn_minutes(),
 		)
 		.["templates"] += list(ship_data)
+
+/datum/ship_select/proc/buy_ship(datum/map_template/shuttle/target_ship, mob/dead/new_player/shipowner, datum/tgui/ui)
+	if(is_banned_from(spawnee.ckey, "Ship Purchasing"))
+		to_chat(spawnee, "<span class='danger'>You are banned from purchasing ships!</span>")
+		spawnee.new_player_panel()
+		ui.close()
+		return
+	if(!SSovermap.player_ship_spawn_allowed())
+		to_chat(shipowner, span_danger("No more ships may be spawned at this time!")
+		return
+	if(!target_ship.enabled)
+		to_chat(shipowner, span_danger("This ship is not currently available for purchase!"))
+		return
+	if(!target_ship.has_ship_spawn_playtime(shipowner.client))
+		to_chat(shipowner, span_danger("You do not have enough playtime to spawn this ship!</span>")
+		return
+
+	var/num_ships_with_template = 0
+	for(var/datum/overmap/ship/controlled/Ship as anything in SSovermap.controlled_ships)
+		if(target_ship == Ship.source_template)
+			num_ships_with_template += 1
+	if(num_ships_with_template >= target_ship.limit)
+		to_chat(shipowner, span_danger("There are already [num_ships_with_template] ships of this type; you cannot spawn more!"))
+		return
+	ui.close()
+	to_chat(shipowner, span_danger("Your [target_ship.name] is being prepared. Please be patient!"))
+	var/datum/overmap/ship/controlled/target = SSovermap.spawn_ship_at_start(target_ship)
+	if(!target?.shuttle_port)
+		to_chat(shipowner, "span_danger(< was an error loading the ship. Please contact admins!"))
+		shipowner.new_player_panel()
+		return
+	SSblackbox.record_feedback("tally", "ship_purchased", 1, target_ship.name) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+	// Try to spawn as the first listed job in the job slots (usually captain)
+	// Playtime checks are overridden, to ensure the player gets to join the ship they spawned.
+	if(!shipowner.AttemptLateSpawn(target.job_slots[1], target, FALSE))
+		to_chat(shipowner, span_danger("Ship spawned, but you were unable to be spawned. You can likely try to spawn in the ship through joining normally, but if not, please contact an admin."))
+		shipowner.new_player_panel()
