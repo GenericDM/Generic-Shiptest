@@ -22,7 +22,6 @@ SUBSYSTEM_DEF(mapping)
 
 	var/list/shuttle_templates = list()
 	var/list/shelter_templates = list()
-	var/list/holodeck_templates = list()
 	// List mapping TYPES of outpost map templates to instances of their singletons.
 	var/list/outpost_templates = list()
 
@@ -77,7 +76,7 @@ SUBSYSTEM_DEF(mapping)
 
 	for(var/N in nuke_tiles)
 		var/turf/open/floor/circuit/C = N
-		C.update_icon()
+		C.update_appearance()
 
 /datum/controller/subsystem/mapping/Recover()
 	flags |= SS_NO_INIT
@@ -91,13 +90,11 @@ SUBSYSTEM_DEF(mapping)
 
 	shuttle_templates = SSmapping.shuttle_templates
 	shelter_templates = SSmapping.shelter_templates
-	holodeck_templates = SSmapping.holodeck_templates
 
 	outpost_templates = SSmapping.outpost_templates
 
 	shuttle_templates = SSmapping.shuttle_templates
 	shelter_templates = SSmapping.shelter_templates
-	holodeck_templates = SSmapping.holodeck_templates
 
 	areas_in_z = SSmapping.areas_in_z
 	map_zones = SSmapping.map_zones
@@ -127,23 +124,11 @@ SUBSYSTEM_DEF(mapping)
 	preloadShuttleTemplates()
 	load_ship_templates()
 	preloadShelterTemplates()
-	preloadHolodeckTemplates()
 	preloadOutpostTemplates()
 
 /datum/controller/subsystem/mapping/proc/preloadRuinTemplates()
 	for(var/datum/planet_type/type as anything in subtypesof(/datum/planet_type))
 		planet_types[initial(type.planet)] = new type
-
-	// Still supporting bans by filename
-	// I hate this so much. I want to kill it because I don't think ANYONE uses this
-	// Couldn't you just remove it on a fork or something??? come onnnnnnnnnnnn stop EXISTING already
-	var/list/banned = generateMapList("[global.config.directory]/lavaruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/spaceruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/iceruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/sandruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/jungleruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/rockruinblacklist.txt")
-	banned += generateMapList("[global.config.directory]/wasteruinblacklist.txt")
 
 	for(var/item in sortList(subtypesof(/datum/map_template/ruin), /proc/cmp_ruincost_priority))
 		var/datum/map_template/ruin/ruin_type = item
@@ -151,9 +136,6 @@ SUBSYSTEM_DEF(mapping)
 		if(!initial(ruin_type.id))
 			continue
 		var/datum/map_template/ruin/R = new ruin_type()
-
-		if(R.mappath in banned)
-			continue
 
 		map_templates[R.name] = R
 		ruins_templates[R.name] = R
@@ -223,7 +205,7 @@ SUBSYSTEM_DEF(mapping)
 			var/value = job_slot_list[job]
 			var/slots
 			if(isnum(value))
-				job_slot = SSjob.GetJob(job)
+				job_slot = GLOB.name_occupations[job]
 				slots = value
 			else if(islist(value))
 				var/datum/outfit/job_outfit = text2path(value["outfit"])
@@ -231,6 +213,7 @@ SUBSYSTEM_DEF(mapping)
 					stack_trace("Invalid job outfit! [value["outfit"]] on [S.name]'s config! Defaulting to assistant clothing.")
 					job_outfit = /datum/outfit/job/assistant
 				job_slot = new /datum/job(job, job_outfit)
+				job_slot.display_order = length(S.job_slots)
 				job_slot.wiki_page = value["wiki_page"]
 				job_slot.officer = value["officer"]
 				slots = value["slots"]
@@ -259,6 +242,7 @@ SUBSYSTEM_DEF(mapping)
 			S.space_spawn = TRUE
 
 		shuttle_templates[S.file_name] = S
+		map_templates[S.file_name] = S
 #undef CHECK_STRING_EXISTS
 #undef CHECK_LIST_EXISTS
 
@@ -290,16 +274,6 @@ SUBSYSTEM_DEF(mapping)
 	CHECK_TICK
 	add_new_zlevel("Quadrant Allocation Level", allocation_type = ALLOCATION_QUADRANT)
 	CHECK_TICK
-
-/datum/controller/subsystem/mapping/proc/preloadHolodeckTemplates()
-	for(var/item in subtypesof(/datum/map_template/holodeck))
-		var/datum/map_template/holodeck/holodeck_type = item
-		if(!(initial(holodeck_type.mappath)))
-			continue
-		var/datum/map_template/holodeck/holo_template = new holodeck_type()
-
-		holodeck_templates[holo_template.template_id] = holo_template
-		map_templates[holo_template.template_id] = holo_template
 
 /datum/controller/subsystem/mapping/proc/preloadOutpostTemplates()
 	for(var/datum/map_template/outpost/outpost_type as anything in subtypesof(/datum/map_template/outpost))

@@ -35,7 +35,7 @@
 
 /obj/item/card/data/Initialize()
 	.=..()
-	update_icon()
+	update_appearance()
 
 /obj/item/card/data/update_overlays()
 	. = ..()
@@ -161,13 +161,14 @@
 	var/icon/cached_flat_icon
 	var/registered_age = 13 // default age for ss13 players
 	var/job_icon
+	var/faction_icon
 
 /obj/item/card/id/Initialize(mapload)
 	. = ..()
 	if(mapload && access_txt)
 		access = text2access(access_txt)
 	update_label()
-	RegisterSignal(src, COMSIG_ATOM_UPDATED_ICON, .proc/update_in_wallet)
+	RegisterSignal(src, COMSIG_ATOM_UPDATED_ICON, PROC_REF(update_in_wallet))
 
 /obj/item/card/id/Destroy()
 	if (registered_account)
@@ -383,7 +384,7 @@
 		var/obj/item/storage/wallet/powergaming = loc
 		if(powergaming.front_id == src)
 			powergaming.update_label()
-			powergaming.update_icon()
+			powergaming.update_appearance()
 
 /obj/item/card/id/proc/get_cached_flat_icon()
 	if(!cached_flat_icon)
@@ -420,7 +421,7 @@ update_label()
 /obj/item/card/id/proc/update_label()
 	var/blank = !registered_name
 	name = "[blank ? initial(name) : "[registered_name]'s ID Card"][(!assignment) ? "" : " ([assignment])"]"
-	update_icon()
+	update_appearance()
 
 /obj/item/card/id/silver
 	name = "silver identification card"
@@ -434,11 +435,6 @@ update_label()
 	assignment = "Head of Personnel"
 	registered_name = "Emergency Command Hologram"
 	access = list(ACCESS_CHANGE_IDS)
-
-/obj/item/card/id/silver/reaper
-	access = list(ACCESS_MAINT_TUNNELS)
-	assignment = "Reaper"
-	registered_name = "Thirteen"
 
 /obj/item/card/id/gold
 	name = "gold identification card"
@@ -525,6 +521,8 @@ update_label()
 		else if (popup_input == "Forge/Reset" && forged)
 			registered_name = initial(registered_name)
 			assignment = initial(assignment)
+			faction_icon = initial(faction_icon)
+			job_icon = initial(job_icon)
 			log_game("[key_name(user)] has reset \the [initial(name)] named \"[src]\" to default.")
 			update_label()
 			forged = FALSE
@@ -602,7 +600,7 @@ update_label()
 /obj/item/card/id/captains_spare/update_label() //so it doesn't change to Captain's ID card (Captain) on a sneeze
 	if(registered_name == "Captain")
 		name = "[initial(name)][(!assignment || assignment == "Captain") ? "" : " ([assignment])"]"
-		update_icon()
+		update_appearance()
 	else
 		..()
 

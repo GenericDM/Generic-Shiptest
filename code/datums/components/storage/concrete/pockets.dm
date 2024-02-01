@@ -29,11 +29,6 @@
 	quickdraw = FALSE
 	silent = FALSE
 
-/datum/component/storage/concrete/pockets/exo/cloak
-	max_items = 1
-	max_w_class = WEIGHT_CLASS_NORMAL
-	quickdraw = TRUE
-
 /datum/component/storage/concrete/pockets/exo/large
 	max_items = 3
 
@@ -121,16 +116,6 @@
 /datum/component/storage/concrete/pockets/holster/nukie
 	max_items = 2
 	max_w_class = WEIGHT_CLASS_BULKY
-
-/datum/component/storage/concrete/pockets/holster/lt/Initialize()
-	original_parent = parent
-	. = ..()
-	can_hold = typecacheof(list(
-		/obj/item/gun/energy/e_gun/adv_stopping,
-		/obj/item/gun/energy/e_gun/mini,
-		/obj/item/gun/energy/disabler,
-		/obj/item/stock_parts/cell/gun
-	))
 
 /datum/component/storage/concrete/pockets/holster/nukie/Initialize()
 	original_parent = parent

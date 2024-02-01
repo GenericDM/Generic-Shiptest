@@ -40,7 +40,7 @@
 	. = ..()
 	possible_states = typelist("possible_states", possible_states)
 
-	update_icon()
+	update_appearance()
 
 /obj/item/reagent_containers/food/condiment/update_icon()
 	cut_overlays()
@@ -120,7 +120,7 @@
 		playsound(src, 'sound/items/glass_transfer.ogg', 50, 1)
 
 /obj/item/reagent_containers/food/condiment/on_reagent_change(changetype)
-	update_icon()
+	update_appearance()
 
 /obj/item/reagent_containers/food/condiment/enzyme
 	name = "universal enzyme"
@@ -235,7 +235,8 @@
 		)
 
 /obj/item/reagent_containers/food/condiment/pack/update_icon()
-	return
+	SHOULD_CALL_PARENT(FALSE)
+	return ..()
 
 /obj/item/reagent_containers/food/condiment/pack/attack(mob/M, mob/user, def_zone) //Can't feed these to people directly.
 	return
@@ -247,10 +248,6 @@
 
 	//You can tear the bag open above food to put the condiments on it, obviously.
 	if(istype(target, /obj/item/reagent_containers/food/snacks))
-		if(!reagents.total_volume)
-			to_chat(user, "<span class='warning'>You tear open [src], but there's nothing in it.</span>")
-			qdel(src)
-			return
 		if(target.reagents.total_volume >= target.reagents.maximum_volume)
 			to_chat(user, "<span class='warning'>You tear open [src], but [target] is stacked so high that it just drips off!</span>" )
 			qdel(src)
@@ -296,7 +293,6 @@
 	originalname = "bbq sauce"
 	list_reagents = list(/datum/reagent/consumable/bbqsauce = 10)
 
-
 /obj/item/reagent_containers/food/condiment/ketchup
 	name = "ketchup bottle"
 	desc = "You feel more american already"
@@ -326,4 +322,14 @@
 	desc = "A delicious oil used in cooking"
 	icon_state = "oliveoil"
 	list_reagents = list(/datum/reagent/consumable/cornoil = 50)
+
+/obj/item/reagent_containers/food/condiment/pack/sugar
+	name = "sugar pack"
+	originalname = "sugar"
+	list_reagents = list(/datum/reagent/consumable/sugar = 5)
+
+/obj/item/reagent_containers/food/condiment/pack/creamer
+	name = "creamer" /// dont laugh you child
+	originalname = "cream"
+	list_reagents = list(/datum/reagent/consumable/cream = 5)
 

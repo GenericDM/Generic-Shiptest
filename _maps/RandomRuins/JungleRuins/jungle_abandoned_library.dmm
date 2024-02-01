@@ -1564,7 +1564,7 @@
 /obj/effect/mob_spawn/human/corpse/assistant{
 	oxy_damage = 200;
 	name = "Dungeon Master";
-	outfit = /datum/outfit/job/curator/dungeonmaster;
+	outfit = /datum/outfit/job/curator;
 	backpack_contents = null
 	},
 /obj/effect/decal/cleanable/blood,
@@ -2698,7 +2698,7 @@
 /area/ruin/jungle)
 "Pu" = (
 /obj/item/paper/crumpled/bloody{
-	info = "Those damn bastards came and shot up the place. I refused to give them my knowledge. I don't have much longer. Keep it safe, please...";
+	default_raw_text = "Those damn bastards came and shot up the place. I refused to give them my knowledge. I don't have much longer. Keep it safe, please...";
 	pixel_x = 8;
 	pixel_y = 4;
 	desc = "A hastily written note."
@@ -3387,7 +3387,7 @@
 "Zw" = (
 /obj/structure/bed,
 /obj/item/bedsheet/brown,
-/obj/structure/sign/poster/official/sgt{
+/obj/structure/sign/poster/rilena/random{
 	pixel_y = 32
 	},
 /obj/structure/spider/stickyweb,

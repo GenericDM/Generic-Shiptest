@@ -97,11 +97,11 @@ GLOBAL_VAR(restart_counter)
 	CONFIG_SET(number/round_end_countdown, 0)
 	var/datum/callback/cb
 #ifdef UNIT_TESTS
-	cb = CALLBACK(GLOBAL_PROC, /proc/RunUnitTests)
+	cb = CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(RunUnitTests))
 #else
 	cb = VARSET_CALLBACK(SSticker, force_ending, TRUE)
 #endif
-	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, /proc/_addtimer, cb, 10 SECONDS))
+	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(_addtimer), cb, 10 SECONDS))
 
 
 /world/proc/SetupLogs()
@@ -151,6 +151,9 @@ GLOBAL_VAR(restart_counter)
 #ifdef UNIT_TESTS
 	GLOB.test_log = "[GLOB.log_directory]/tests.log"
 	start_log(GLOB.test_log)
+#endif
+#ifdef REFERENCE_DOING_IT_LIVE
+	GLOB.harddel_log = "[GLOB.log_directory]/harddels.log"
 #endif
 	start_log(GLOB.world_game_log)
 	start_log(GLOB.world_attack_log)
@@ -246,11 +249,11 @@ GLOBAL_VAR(restart_counter)
 
 	TgsReboot()
 
-	#ifdef UNIT_TESTS
+#ifdef UNIT_TESTS
 	FinishTestRun()
 	return
-	#endif
 
+#else
 	if(TgsAvailable())
 		var/do_hard_reboot
 		// check the hard reboot counter
@@ -277,6 +280,8 @@ GLOBAL_VAR(restart_counter)
 	AUXTOOLS_SHUTDOWN(AUXMOS)
 	..()
 
+#endif //ifdef UNIT_TESTS
+
 /world/Del()
 	shutdown_logging() // makes sure the thread is closed before end, else we terminate
 	AUXTOOLS_SHUTDOWN(AUXMOS)
@@ -289,10 +294,7 @@ GLOBAL_VAR(restart_counter)
 
 	var/list/features = list()
 
-	if(GLOB.master_mode)
-		features += GLOB.master_mode
-
-	if (!GLOB.enter_allowed)
+	if(LAZYACCESS(SSlag_switch.measures, DISABLE_NON_OBSJOBS))
 		features += "closed"
 
 	var/s = ""
@@ -308,14 +310,23 @@ GLOBAL_VAR(restart_counter)
 			features += "AI allowed"
 		hostedby = CONFIG_GET(string/hostedby)
 
+	var/discord_url
+	var/github_url
+	if(isnull(config))
+		discord_url = "https://shiptest.net/discord"
+		github_url = "https://github.com/shiptest-ss13/Shiptest"
+	else
+		discord_url = CONFIG_GET(string/discordurl)
+		github_url = CONFIG_GET(string/githuburl)
+
 	s += "<b>[station_name()]</b>";
 	s += " ("
-	s += "<a href=\"https://shiptest.net/discord\">" //Change this to wherever you want the hub to link to.
+	s += "<a href=\"[discord_url]\">" //Change this to wherever you want the hub to link to.
 	s += "Discord"  //Replace this with something else. Or ever better, delete it and uncomment the game version.
 	s += "</a>"
 	s += ")"
 	s += " ("
-	s += "<a href=\"https://github.com/shiptest-ss13/Shiptest\">"
+	s += "<a href=\"[github_url]\">"
 	s += "Github"
 	s += "</a>"
 	s += ")"
