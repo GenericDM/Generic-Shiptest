@@ -149,6 +149,9 @@
 
 //HUD layer defines part two
 
+//Blind Features
+#define BLIND_FEATURE_PLANE 41
+
 #define HUD_PLANE 42
 #define HUD_LAYER 42
 #define HUD_RENDER_TARGET "HUD_PLANE"
